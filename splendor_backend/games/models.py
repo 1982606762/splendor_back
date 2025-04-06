@@ -144,7 +144,7 @@ class Card(models.Model):
     level = models.PositiveSmallIntegerField(choices=LEVEL_CHOICES, verbose_name="等级")
     color = models.CharField(max_length=10, choices=COLOR_CHOICES, verbose_name="颜色")
     points = models.PositiveSmallIntegerField(verbose_name="分数")
-    cost = models.JSONField(verbose_name="花费")
+    _cost = models.JSONField(verbose_name="花费")
 
     class Meta:
         verbose_name = "卡牌"
@@ -154,6 +154,11 @@ class Card(models.Model):
     def cost(self):
         return json.loads(self._cost)
     
+    @cost.setter
+    def cost(self, value):
+        self._cost = json.dumps(value)
+
+
     def __str__(self):
         return f"{self.color} {self.level} ({self.points})"
     
@@ -162,15 +167,11 @@ class Noble(models.Model):
     name = models.CharField(max_length=100, verbose_name="贵族名称")
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     points = models.PositiveSmallIntegerField(verbose_name="分数")
-    requirement = models.JSONField(verbose_name="需求")
+    requirement = models.JSONField(verbose_name="需求", default=dict)
 
     class Meta:
         verbose_name = "贵族"
         verbose_name_plural = "贵族"
-    
-    @property
-    def requirement(self):
-        return json.loads(self._requirement)
     
     def __str__(self):
         return f"{self.name} ({self.points})"
